@@ -186,11 +186,11 @@ button,a,select{touch-action:manipulation}
 
 <section id="economy"><div class="sectionhead"><h3>💼 Economy</h3><p>How news affects people and business</p></div><div class="grid"><article class="card"><div class="cat">💼 ECONOMY</div><h4>Inflation, jobs & growth</h4><p>Simple context for important economic changes.</p></article><article class="card"><div class="cat">🏦 POLICY</div><h4>Rates & central banks</h4><p>Understand major policy changes and their possible impact.</p></article><article class="card" id="markets"><div class="cat">📈 MARKETS</div><h4>Market-moving news</h4><p>Connect important headlines with GBK Markets.</p><small><a href="https://markets.gbkai.com/">Open Markets →</a></small></article></div></section>
 
-<section id="ai"><div class="ai"><div class="aiicon">🤖</div><div style="width:100%"><h4>Ask GBK AI in your language</h4><p>“Explain this news clearly. What happened? Why does it matter? What happens next? What can people do?”</p><div class="ai-tools"><button class="ask" type="button" onclick="askGBKAI()">Ask GBK AI →</button><button class="mic" id="aiMic" type="button" onclick="startMic('q','aiMic')">🎙️ Speak → GBK AI explains</button></div><div class="ai-status" id="aiStatus">🎙️ Ask by voice. GBK AI explains the related answer clearly in your selected language.</div></div></div></section>
+<section id="ai"><div class="ai"><div class="aiicon">🤖</div><div style="width:100%"><h4>Ask GBK AI in your language</h4><p>Ask about news, events, impact, causes, what happens next, solutions, markets or your selected country.</p><div class="ai-tools"><button class="ask" type="button" onclick="askGBKAI()">Ask GBK AI →</button><button class="mic" id="aiMic" type="button" onclick="startMic('q','aiMic')">🎙️ Speak → GBK AI explains</button></div><div class="ai-status" id="aiStatus">🤖 News-only AI mode — your question stays on news.gbkai.com.</div><div id="aiAnswer" class="ai-answer" style="display:none;margin-top:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:15px;padding:13px;line-height:1.55"></div></div></div></section>
 
 <footer>GBK News focuses on reliable reporting, clear context, constructive solutions and verified positive progress. Live news requires authorized/reliable news feeds; AI explanations are clearly distinguished from original reporting.</footer>
 </div>
-<nav><div class="navin"><a href="https://gbkai.com/"><b>⌂</b>Global</a><a href="https://app.gbkai.com/"><b>🤖</b>GBK AI</a><a href="https://markets.gbkai.com/"><b>📊</b>Markets</a><a href="https://agri.gbkai.com/"><b>🌾</b>Agri</a><a href="#"><b>📰</b>News</a></div></nav>
+<nav><div class="navin"><a href="https://gbkai.com/"><b>⌂</b>Global</a><a href="#ai" onclick="openNewsAI(event)"><b>🤖</b>GBK AI</a><a href="https://markets.gbkai.com/"><b>📊</b>Markets</a><a href="https://agri.gbkai.com/"><b>🌾</b>Agri</a><a href="#"><b>📰</b>News</a></div></nav>
 
 
 <script>
@@ -481,20 +481,58 @@ function newsQuestion(){
   return q || `Explain the latest important news related to ${country}. What happened, why does it matter, who is affected, what happens next, what solutions are being tried, what is improving, and what can people do? Answer clearly and briefly in my selected language (${lang}).`;
 }
 
-window.askGBKAI=function(){
-  const lang=selectedLanguage(), country=selectedCountry(), q=newsQuestion();
-  const article=document.querySelector('#story1 .story h4')?.textContent?.trim()||'GBK News'; const url='https://app.gbkai.com/?news=1&source=gbknews&country='+encodeURIComponent(country)+'&lang='+encodeURIComponent(lang)+'&topic='+encodeURIComponent(article)+'&q='+encodeURIComponent(q);
-  window.location.href=url;
+window.openNewsAI=function(e){
+  if(e) e.preventDefault();
+  const ai=document.getElementById('ai');
+  if(ai) ai.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>document.getElementById('q')?.focus(),350);
 };
+
+window.askGBKAI=async function(){
+  const lang=selectedLanguage(), country=selectedCountry(), q=newsQuestion();
+  const article=document.querySelector('#story1 .story h4')?.textContent?.trim()||'GBK News';
+  const answer=document.getElementById('aiAnswer'), status=document.getElementById('aiStatus');
+  if(!answer) return;
+  answer.style.display='block';
+  answer.innerHTML='<b>🤖 GBK News AI</b><br><br><span style="opacity:.85">Searching current news and preparing a clear answer…</span>';
+  if(status) status.textContent='🔎 GBK News AI is checking current news…';
+  answer.scrollIntoView({behavior:'smooth',block:'center'});
+  try{
+    const res=await fetch('/api/news-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,country,language:lang,article,mode:'news'})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||'AI request failed');
+    const text=String(data.answer||'').trim();
+    if(!text) throw new Error('No AI answer returned');
+    answer.innerHTML='<b>🤖 GBK News AI</b><br><br>'+formatAIText(text)+'<br><br><span style="opacity:.72;font-size:.88em">Live-news answer generated from current web sources. AI analysis is separate from original reporting.</span>';
+    if(status) status.textContent='✅ Answer ready in your selected language.';
+  }catch(err){
+    answer.innerHTML='<b>🤖 GBK News AI</b><br><br><span style="color:#ffb4bd">Unable to reach the News AI service right now.</span><br><br><span style="opacity:.8">Make sure the Vercel deployment has the OPENAI_API_KEY environment variable configured, then try again.</span>';
+    if(status) status.textContent='⚠️ News AI service unavailable.';
+  }
+};
+
+function formatAIText(v){
+  return escapeHtml(v).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+}
+
+function escapeHtml(v){return String(v).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
 
 window.searchNews=function(){
   const input=document.getElementById('q');
   const q=(input?.value||'').trim();
   if(!q){ input?.focus(); return; }
-  document.querySelectorAll('.story,.card').forEach(el=>{
-    el.style.outline='';
-    if(el.textContent.toLowerCase().includes(q.toLowerCase())){el.style.outline='2px solid var(--cyan)';el.scrollIntoView({behavior:'smooth',block:'center'});}
-  });
+  const needle=q.toLowerCase();
+  const items=[...document.querySelectorAll('.story,.card')];
+  items.forEach(el=>el.style.outline='');
+  const matches=items.filter(el=>el.textContent.toLowerCase().includes(needle));
+  if(matches.length){
+    matches.forEach(el=>el.style.outline='2px solid var(--cyan)');
+    matches[0].scrollIntoView({behavior:'smooth',block:'center'});
+    const st=document.getElementById('aiStatus'); if(st) st.textContent=`🔎 Found ${matches.length} matching News item${matches.length===1?'':'s'}.`;
+    return;
+  }
+  const st=document.getElementById('aiStatus'); if(st) st.textContent='🔎 No loaded story matches. Ask GBK AI to check current news for this search.';
+  const ai=document.getElementById('ai'); if(ai) ai.scrollIntoView({behavior:'smooth',block:'center'});
 };
 
 window.startMic=function(inputId,buttonId){
@@ -511,9 +549,8 @@ window.startMic=function(inputId,buttonId){
     let text=''; for(let i=e.resultIndex;i<e.results.length;i++) text+=e.results[i][0].transcript;
     if(input) input.value=text;
     if(e.results[e.results.length-1].isFinal){
-      if(status) status.textContent='✅ Heard: “'+text+'” — opening GBK AI with the related news context…';
-      const country=selectedCountry();
-      setTimeout(()=>window.location.href='https://app.gbkai.com/?news=1&source=gbknews&country='+encodeURIComponent(country)+'&lang='+encodeURIComponent(selected)+'&topic='+encodeURIComponent(document.querySelector('#story1 .story h4')?.textContent?.trim()||'GBK News')+'&q='+encodeURIComponent(text),250);
+      if(status) status.textContent='✅ Heard: “'+text+'” — preparing the news-related answer…';
+      setTimeout(()=>{ if(input) input.value=text; if(inputId==='q' && buttonId==='aiMic') window.askGBKAI(); else window.searchNews(); },250);
     }
   };
   r.onerror=function(e){

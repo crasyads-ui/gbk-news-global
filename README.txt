@@ -1,10 +1,19 @@
-GBK NEWS V20 — FINAL LANGUAGE + NEWS AI
+GBK GLOBAL NEWS V22 — REAL NEWS AI
 
-Fixes:
-- Prevents stale language text from surviving a language switch.
-- Translates nested frontend text nodes as well as leaf elements.
-- Full Japanese UI/news/AI wording added.
-- Country and Language controls remain synchronized.
-- Ask GBK AI carries GBK News context, country and selected language.
-- Voice carries the same context.
-- Existing visual design preserved.
+Frontend:
+- Search highlights loaded News stories.
+- Ask GBK AI stays on news.gbkai.com.
+- Voice input feeds the same News AI flow.
+- Country and language are sent with each AI request.
+
+Vercel setup for live AI:
+1. Deploy this folder/project to Vercel.
+2. In Vercel Project Settings → Environment Variables, add OPENAI_API_KEY.
+3. Optional: add OPENAI_NEWS_MODEL (default: gpt-5.6-luna).
+4. Redeploy.
+
+Security:
+- Never put OPENAI_API_KEY in index.html or client-side JavaScript.
+- The key is used only by /api/news-ai.js.
+
+The News AI endpoint uses current web search through the Responses API, so live-news answers require the server environment variable and an active API account.
