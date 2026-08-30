@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
       body: JSON.stringify({
-        model: process.env.OPENAI_NEWS_MODEL || 'gpt-5.6-luna',
+        model: process.env.OPENAI_NEWS_MODEL || 'gpt-5-mini'
         tools: [{ type: 'web_search' }],
         input: prompt,
         max_output_tokens: 900
