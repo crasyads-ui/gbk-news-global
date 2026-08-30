@@ -85,8 +85,29 @@ body.light .pill{color:#111827}
 select{cursor:pointer}
 button,a,select{touch-action:manipulation}
 </style>
+
+<style id="gbk-install-ui">
+#gbk-install-banner{display:none;margin:12px 0 16px;padding:12px 14px;border:1px solid rgba(255,210,63,.55);border-radius:16px;background:linear-gradient(135deg,rgba(255,210,63,.12),rgba(156,99,255,.12));align-items:center;gap:12px}
+#gbk-install-banner .gbk-install-copy{flex:1;min-width:0}
+#gbk-install-banner .gbk-install-title{font-weight:800;font-size:15px;line-height:1.2}
+#gbk-install-banner .gbk-install-sub{font-size:12px;opacity:.72;margin-top:3px}
+#gbk-install-btn{border:0;border-radius:12px;padding:10px 13px;font-weight:800;white-space:nowrap;cursor:pointer;background:#ffd23f;color:#07101f}
+#gbk-install-close{border:0;background:transparent;color:inherit;opacity:.65;font-size:20px;line-height:1;cursor:pointer;padding:4px}
+@media(max-width:520px){#gbk-install-banner{padding:11px 10px}#gbk-install-btn{padding:9px 10px;font-size:13px}}
+</style>
+
 </head>
 <body>
+
+<div id="gbk-install-banner" role="region" aria-label="Install GBK News">
+  <div class="gbk-install-copy">
+    <div class="gbk-install-title">📱 Install GBK News</div>
+    <div class="gbk-install-sub">Add GBK News to your home screen</div>
+  </div>
+  <button id="gbk-install-btn" type="button">Install</button>
+  <button id="gbk-install-close" type="button" aria-label="Dismiss">×</button>
+</div>
+
 <div class="wrap">
 <header>
 <div class="top"><div class="logo">GBK</div><div class="brand"><h1>GBK GLOBAL NEWS</h1><small>Understand. Solve. Act.</small></div><div class="right"><button class="pill" id="themeBtn" onclick="toggleTheme()">☀️ Light</button></div></div>
@@ -521,4 +542,61 @@ updateThemeButton(selectedLanguage());
 
 });
 </script>
+
+<script id="gbk-install-ui-js">
+(function(){
+  let deferredPrompt = null;
+  const banner = document.getElementById('gbk-install-banner');
+  const installBtn = document.getElementById('gbk-install-btn');
+  const closeBtn = document.getElementById('gbk-install-close');
+  if(!banner || !installBtn) return;
+
+  const isStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  function showBanner(){
+    if(!isStandalone()) banner.style.display = 'flex';
+  }
+  function hideBanner(){ banner.style.display = 'none'; }
+
+  // Show the control on normal browser pages even before the browser
+  // exposes the install prompt.
+  if(!isStandalone()) showBanner();
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showBanner();
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      try { await deferredPrompt.userChoice; } catch(e) {}
+      deferredPrompt = null;
+      hideBanner();
+      return;
+    }
+
+    // Browser-specific fallback instructions.
+    const ua = navigator.userAgent || '';
+    if(/SamsungBrowser/i.test(ua)){
+      alert('Samsung Internet: open the browser menu (☰/⋮) → Add page to → Home screen.');
+    }else if(/Android/i.test(ua)){
+      alert('Chrome: open ⋮ menu → Add to Home screen or Install app.');
+    }else{
+      alert('Open your browser menu and choose Add to Home screen / Install app.');
+    }
+  });
+
+  closeBtn.addEventListener('click', hideBanner);
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    hideBanner();
+  });
+})();
+</script>
+
 </body></html>
