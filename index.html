@@ -506,7 +506,7 @@ window.askGBKAI=async function(){
     answer.innerHTML='<b>🤖 GBK News AI</b><br><br>'+formatAIText(text)+'<br><br><span style="opacity:.72;font-size:.88em">Live-news answer generated from current web sources. AI analysis is separate from original reporting.</span>';
     if(status) status.textContent='✅ Answer ready in your selected language.';
   }catch(err){
-    answer.innerHTML='<b>🤖 GBK News AI</b><br><br><span style="color:#ffb4bd">Unable to reach the News AI service right now.</span><br><br><span style="opacity:.8">Make sure the Vercel deployment has the OPENAI_API_KEY environment variable configured, then try again.</span>';
+    answer.innerHTML='<b>🤖 GBK News AI</b><br><br><span style="color:#ffb4bd">News AI is temporarily unavailable.</span><br><br><span style="opacity:.8">'+escapeHtml(err?.message||'Please try again shortly.')+'</span>';
     if(status) status.textContent='⚠️ News AI service unavailable.';
   }
 };
