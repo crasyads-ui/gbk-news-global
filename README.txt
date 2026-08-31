@@ -5,3 +5,5 @@ This version fixes the mixed-language frontend problem. Static translations cove
 PWA install support is retained.
 
 V37: local-language font stacks and responsive typography/overflow safety added without changing the visual layout.
+
+V38: before every GBK AI news explanation, the selected-language greeting is shown and spoken first. Voice playback has a clear Stop button and avoids duplicate greetings.
