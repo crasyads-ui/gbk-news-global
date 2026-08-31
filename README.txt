@@ -1,10 +1,5 @@
-GBK NEWS V24 — FRONTEND FIXED
+GBK NEWS V32 — COMPLETE MULTILINGUAL FRONTEND
 
-Fixes:
-- Clean mobile AI answer formatting; no visible ### Markdown.
-- No long raw URLs in the answer body.
-- Mobile-safe wrapping and overflow protection.
-- Clean source chips when the AI supplies links.
-- Added Listen & Explain voice playback.
-- Preserved Ask GBK AI, Speak, country/language selectors, light/dark theme, navigation and PWA install UI.
-- Uses /api/news-ai with current web search.
+This version fixes the mixed-language frontend problem. Static translations cover the complete visible frontend for Hindi, Telugu, Tamil, Kannada, Malayalam, Marathi, Bengali, Spanish, French, German, Japanese, Chinese, Portuguese, Arabic, Urdu and Welsh, with English as the source language. Emoji-prefixed labels are normalized safely. AI translation remains as a fallback for any future/dynamic text.
+
+PWA install support is retained.
