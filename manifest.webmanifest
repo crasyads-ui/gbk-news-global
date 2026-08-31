@@ -1,14 +1,12 @@
 {
-  "name": "GBK Global News",
-  "short_name": "GBK News",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#07101f",
-  "theme_color": "#07101f",
-  "description": "GBK Global News — trusted global news, markets, AI explanations and multilingual news.",
-  "icons": [
-    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  "name":"GBK Global News",
+  "short_name":"GBK News",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#07101f",
+  "theme_color":"#07101f",
+  "icons":[
+    {"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png"}
   ]
 }
